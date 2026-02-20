@@ -76,7 +76,7 @@ namespace GearLog.Mod
                 _isDeletePressed = true;
                 if (!string.IsNullOrEmpty(_currentSceneName) && _currentSessionData != null)
                 {
-                    _gearScanner.DeleteSceneFromSession(_currentSceneName, _currentSessionName, _currentSessionData); // ← Исправлено имя метода
+                    _gearScanner.DeleteSceneFromSession(_currentSceneName, _currentSessionName, _currentSessionData);
                 }
             }
             else if (Input.GetKeyUp(Settings.Options.DeleteKey))
