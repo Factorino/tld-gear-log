@@ -30,10 +30,10 @@ namespace GearLog.Mod.Entities
             Count = _getItemCount(item);
         }
 
-        private static string _getItemName(GearItem item) =>
+        private string _getItemName(GearItem item) =>
             !string.IsNullOrEmpty(item.DisplayName) ? item.DisplayName : item.name;
 
-        private static GearType _getGearType(GearItem item)
+        private GearType _getGearType(GearItem item)
         {
             if (item.IsAnyGearType(GearType.Clothing)) return GearType.Clothing;
             if (item.IsAnyGearType(GearType.Firestarting)) return GearType.Firestarting;
@@ -44,7 +44,7 @@ namespace GearLog.Mod.Entities
             return GearType.Other;
         }
 
-        private static string _getCondition(GearItem item)
+        private string _getCondition(GearItem item)
         {
             if (item.IsNullOrDestroyed())
             {
@@ -56,7 +56,7 @@ namespace GearLog.Mod.Entities
             return $"{percent}%";
         }
 
-        private static int _getItemCount(GearItem item)
+        private int _getItemCount(GearItem item)
         {
             StackableItem stackable = item.GetComponent<StackableItem>();
             return stackable != null && stackable.m_Units > 0 ? stackable.m_Units : 1;
