@@ -1,9 +1,7 @@
 ﻿using GearLog.Log.Entities;
 using GearLog.Log.Services;
-using Il2Cpp;
 using MelonLoader;
 using System;
-using System.IO;
 using UnityEngine;
 
 namespace GearLog.Log
@@ -29,6 +27,8 @@ namespace GearLog.Log
             _logger.Msg($"Version {Info.Version} loaded");
 
             Settings.Initialize();
+            Utils.SetLogger(_logger);
+
             _fileManager = new FileManager(Info.Name, _logger);
             _gearScanner = new GearScanner(_fileManager, _logger);
         }
@@ -38,22 +38,16 @@ namespace GearLog.Log
             _currentSceneName = sceneName;
             _updateSessionContext();
 
-            if (Settings.Options.DebugLogs)
-            {
-                _logger.Msg($"Scene loaded: {sceneName} | Session: {_currentSessionName}");
-            }
+            Utils.Debug($"Scene loaded: {sceneName} | Session: {_currentSessionName}");
         }
 
         public override void OnUpdate()
         {
             _updateSessionContext();
 
-            if (!_isScenePlayable(_currentSceneName))
+            if (Utils.IsScenePlayable(_currentSceneName))
             {
-                if (Settings.Options.DebugLogs)
-                {
-                    _logger.Msg($"Scene '{_currentSceneName}' is not playable");
-                }
+                Utils.Debug($"Scene '{_currentSceneName}' is not playable");
                 return;
             }
 
@@ -86,8 +80,8 @@ namespace GearLog.Log
 
         private void _updateSessionContext()
         {
-            string newSessionName = _getCurrentSaveName();
-            DateTime newSessionStart = _getSessionStartDate(newSessionName);
+            string newSessionName = Utils.GetCurrentSaveName();
+            DateTime newSessionStart = Utils.GetSessionStartDate(newSessionName);
 
             if (newSessionName != _currentSessionName)
             {
@@ -96,60 +90,6 @@ namespace GearLog.Log
                 _currentSessionData = _fileManager.LoadSessionLog(_currentSessionName, _currentSessionStart);
                 _logger.Msg(System.ConsoleColor.Cyan, $"Session switched: Session {_currentSessionName}");
             }
-        }
-
-        private string _getCurrentSaveName()
-        {
-            return SaveGameSystem.GetCurrentSaveName();
-        }
-
-        private DateTime _getSessionStartDate(string sessionName)
-        {
-            string saveName = SaveGameSystem.GetCurrentSaveName();
-            string relativePath;
-
-            if (OperatingSystem.IsWindows())
-            {
-                // C:\Users\<username>\AppData\Local\Hinterland\TheLongDark\Survival\
-                relativePath = "AppData\\Local\\Hinterland\\TheLongDark\\Survival";
-            }
-            else if (OperatingSystem.IsLinux())
-            {
-                // /home/<username>/.local/share/Hinterland/TheLongDark/Survival/
-                relativePath = ".local/share/Hinterland/TheLongDark/Survival";
-            }
-            else if (OperatingSystem.IsMacOS())
-            {
-                // /users/<username>/.local/share/Hinterland/TheLongDark/Survival/
-                relativePath = ".local/share/Hinterland/TheLongDark/Survival";
-            }
-            else
-            {
-                relativePath = string.Empty;
-            }
-
-            string savePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                relativePath
-            );
-
-            if (string.IsNullOrEmpty(saveName))
-            {
-                return DateTime.Now;
-            }
-
-            savePath = Path.Combine(savePath, saveName);
-            return File.GetCreationTime(savePath);
-        }
-
-        private bool _isScenePlayable(string scene)
-        {
-            return !(
-                string.IsNullOrEmpty(scene) 
-                || scene.Contains("MainMenu") 
-                || scene == "Boot" 
-                || scene == "Empty"
-            );
         }
     }
 }

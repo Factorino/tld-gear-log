@@ -36,7 +36,7 @@ namespace GearLog.Log.Services
 
             if (!File.Exists(path))
             {
-                _logger.Msg($"[FileManager] New session log: {sessionName}");
+                Utils.Debug($"[FileManager] New session log: {sessionName}");
                 return new SessionData(sessionName, sessionStart);
             }
 
@@ -44,7 +44,7 @@ namespace GearLog.Log.Services
             {
                 string json = File.ReadAllText(path);
                 SessionData? data = JsonConvert.DeserializeObject<SessionData>(json);
-                _logger.Msg($"[FileManager] Loaded session log: {data?.SessionName} ({data?.Scenes?.Count} scenes)");
+                Utils.Debug($"[FileManager] Loaded session log: {data?.SessionName} ({data?.Scenes?.Count} scenes)");
                 return data ?? new SessionData(sessionName, sessionStart);
             }
             catch (Exception e)
@@ -62,10 +62,7 @@ namespace GearLog.Log.Services
                 string json = JsonConvert.SerializeObject(data, _jsonSettings);
                 File.WriteAllText(path, json);
 
-                if (Settings.Options.DebugLogs)
-                {
-                    _logger.Msg($"[FileManager] Saved session log: {Path.GetFileName(path)}");
-                }
+                Utils.Debug($"[FileManager] Saved session log: {Path.GetFileName(path)}");
             }
             catch (Exception e)
             {
